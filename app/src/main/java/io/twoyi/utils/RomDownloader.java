@@ -83,8 +83,14 @@ public final class RomDownloader {
                 for (int retry = 0; retry < MAX_RETRIES_PER_URL; retry++) {
                     try {
                         File tmp = new File(target.getAbsolutePath() + ".tmp");
-                        long size = httpDownload(url, tmp, (p, d, t) ->
-                                main.post(() -> listener.onProgress(p, d, t)));
+                        long size = httpDownload(url, tmp, new ProgressListener() {
+                            @Override public void onProgress(int p, long d, long t) {
+                                main.post(() -> listener.onProgress(p, d, t));
+                            }
+                            @Override public void onMirrorSwitch(String u, int i, int tot) { }
+                            @Override public void onSuccess(File f, boolean c) { }
+                            @Override public void onFailure(String r) { }
+                        });
                         if (size <= 0) throw new IOException("empty body");
                         if (!tmp.renameTo(target)) {
                             // fallback copy
