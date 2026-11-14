@@ -78,8 +78,9 @@ public final class RomDownloader {
 
             int total = candidates.size();
             for (int i = 0; i < total; i++) {
-                String url = candidates.get(i);
-                main.post(() -> listener.onMirrorSwitch(url, i + 1, total));
+                final String url = candidates.get(i);
+                final int idx = i + 1;
+                main.post(() -> listener.onMirrorSwitch(url, idx, total));
                 for (int retry = 0; retry < MAX_RETRIES_PER_URL; retry++) {
                     try {
                         File tmp = new File(target.getAbsolutePath() + ".tmp");
