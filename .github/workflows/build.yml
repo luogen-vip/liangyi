@@ -39,6 +39,14 @@ jobs:
             fi
           done
 
+      - name: Decode signing keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > liangyi.keystore
+          echo "KEYSTORE_FILE=$(pwd)/liangyi.keystore" >> $GITHUB_ENV
+          echo "KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> $GITHUB_ENV
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> $GITHUB_ENV
+
       - name: Build with Gradle
         run: |
           chmod +x gradlew
@@ -59,13 +67,14 @@ jobs:
       - name: Create/Update Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0-liangyi
-          name: 两仪 LiangYi v1.0
+          tag_name: v1.0.1-liangyi
+          name: 两仪 LiangYi v1.0.1
           body: |
             两仪（LiangYi）定制版 APK。
+            - 本版本已签名，可直接安装；与 v1.0 签名不同，如已装 v1.0 请先卸载
             - 内置官方 8.1 rootfs（管理器、超级管理者 root 均保留）
             - 设置中新增「下载自定义 ROM」：多加速镜像自动换源 + 缓存
-            - 支持从加速镜像下载 7z ROM 并自动安装
+            - 修复：v1.0 未签名无法安装的问题
           files: liangyi-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

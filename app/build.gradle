@@ -37,7 +37,28 @@ android {
             minifyEnabled false
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // CI 签名：环境变量存在时使用正式签名，否则保持未签名（本地调试）
+            def ksFile = System.getenv("KEYSTORE_FILE")
+            if (ksFile != null) {
+                signingConfig signingConfigs.ciRelease
+            }
         }
+    }
+
+    signingConfigs {
+        ciRelease {
+            def ksFile = System.getenv("KEYSTORE_FILE")
+            if (ksFile != null) {
+                storeFile file(ksFile)
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    packagingOptions {
+        pickFirst 'lib/arm64-v8a/libp7zip.so'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
